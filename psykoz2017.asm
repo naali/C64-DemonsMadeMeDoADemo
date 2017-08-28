@@ -4,9 +4,8 @@
 //----------------------------------------------------------
 //				Variables
 //----------------------------------------------------------
-.var			debug = false
+.var			debug = true
 .var 			music = LoadSid("acid_jazz.sid")
-.var			musicEnabled = false
 .const 			irqpointer = $0314
 
 //----------------------------------------------------------
@@ -16,9 +15,6 @@
 //----------------------------------------------------------
 mainStartup:
 * = mainStartup "Main Startup"
-				lda #$00
-				sta $d020
-				sta $d021
 				jsr examplePart.partInit
 				sei
 		:SetupIRQ(examplePart.partIrqStart, examplePart.partIrqStartLine, false)
@@ -55,10 +51,13 @@ partInit:
 					sta $07F8 + i
 				}
 
-				lda #$30
-				sta $cf
-				lda #$10
-				sta $ce
+				lda #0
+				sta $cf // sprite x ptr
+				lda #0
+				sta $ce // sprite y ptr
+
+				lda #0
+				sta $cd // sprite x loc ptr
 
 				rts
 //----------------------------------------------------------
@@ -71,6 +70,7 @@ partIrqStart: {
 				lda colors1,x
 				sta $d020
 				sta $d021
+
 			.for(var j=0; j<22; j++) {
 				nop
 			}				
@@ -78,38 +78,57 @@ partIrqStart: {
 				cpx #colorend-colors1
 				bne !-
 
+// Scroller
+				DebugRaster(1)
 
-				lda #01
-				sta $d020
-				sta $d021
-				jsr music.play 
 
-				inc $cf
+// Sprites
+				DebugRaster(3)
 
-				inc $ce
-				inc $ce
+				dec $cf // sprite x ptr
 
-				lda #03
-				sta $d020
-				sta $d021
+				dec $ce // sprite y ptr
+				dec $ce
+
+				dec $cd // sprite x loc ptr
+				dec $cd
+				dec $cd
+
+				ldy #0
 
 			.for (var j=0; j<7; j++) {
 				lda $cf
 				adc #23 * j
 				tax
 				lda sinTblX, x
-				adc #40
+				ldx $cd
+				adc sinTblY, x
 				sta $d000 + j * 2 
+
+				bcc no_overflow
+				tya 
+				ora #1 << j
+				tay
+no_overflow:				
 
 				lda $ce
 				adc #17 * j
 				tax
 				lda sinTblY, x
+				adc #60
 				sta $d001  + j * 2 
 			}
-				lda #0
-				sta $d020
-				sta $d021
+
+				tya
+				sta $d010
+
+// Music
+				DebugRaster(4)
+				jsr music.play 
+
+
+				DebugRaster(0)
+
 		:EndIRQ(partIrqStart,partIrqStartLine,false)
 }
 
@@ -188,10 +207,20 @@ loop:
 }
 //----------------------------------------------------------
 
+.macro DebugRaster(color) {
+	.if (debug) {
+		pha
+		lda #0 + color
+		sta $d020
+		sta $d021
+		pla
+	}
+}
+
 *=music.location "Music"
 .fill music.size, music.getData(i)
 
-*=$3000
+* = $3000 "Sprites"
 .var sprites = LoadPicture("damones_sprite.png")
 .for (var s = 0; s < 7; s++) {
 
