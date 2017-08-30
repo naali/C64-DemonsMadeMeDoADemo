@@ -75,12 +75,17 @@ partInit:
 				sta scrollTextPtr + 1
 
 				ldx #0
-				lda #1
+				
 !:
+				lda (scrollPalette), x
 				sta $d800 + (40 * scrollLine), x
 				inx
 				cpx #40
 				bne !-
+
+				lda $d016
+				and #%11110111
+				sta $d016
 
 				rts
 //----------------------------------------------------------
@@ -90,7 +95,7 @@ partIrqStart: {
 				lda $d016
 				and #%11111000
 				sta $d016
-
+/*
 			.for(var j=0; j<7; j++) {
 				nop
 			}				
@@ -106,7 +111,7 @@ partIrqStart: {
 				inx
 				cpx #colorend-colors1
 				bne !-
-
+*/
 				lda #0
 				sta $d020
 				sta $d021
@@ -148,16 +153,26 @@ no_overflow:
 				tax
 				lda sinTblY, x
 				adc #40
-				sta $d001  + j * 2 
+				sta $d001  + j * 2
+
+				txa 
+				ror
+				clc
+				ror
+				clc
+				tax
+
+				lda spritePalette, x
+
+				sta $d027 + j
 			}
 
 				tya
 				sta $d010
 
-				lda #0
-				sta $d020
-				sta $d021
 
+
+				DebugRaster(0)
 		:EndIRQ(scrollIrqStart,scrollIrqStartLine,false)
 
 }
@@ -245,7 +260,7 @@ partJump:
 }
 
 colors1:
-				.text "fncmagolk@fncmagolk@fncmagolk@fncmagolk@"
+//				.text "fncmagolk@fncmagolk@fncmagolk@fncmagolk@"
 colorend:
 
 
@@ -253,9 +268,20 @@ sinTblX: 		.byte 100,102,104,107,109,112,114,117,119,121,124,126,129,131,133,135
 sinTblY: 		.byte 64,65,67,68,70,71,73,74,76,78,79,81,82,84,85,87,88,89,91,92,94,95,96,98,99,100,102,103,104,105,106,108,109,110,111,112,113,114,115,116,117,118,118,119,120,121,121,122,123,123,124,124,125,125,126,126,126,127,127,127,127,127,127,127,128,127,127,127,127,127,127,127,126,126,126,125,125,124,124,123,123,122,121,121,120,119,118,118,117,116,115,114,113,112,111,110,109,108,106,105,104,103,102,100,99,98,96,95,94,92,91,89,88,87,85,84,82,81,79,78,76,74,73,71,70,68,67,65,64,62,60,59,57,56,54,53,51,49,48,46,45,43,42,40,39,38,36,35,33,32,31,29,28,27,25,24,23,22,21,19,18,17,16,15,14,13,12,11,10,9,9,8,7,6,6,5,4,4,3,3,2,2,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,2,2,3,3,4,4,5,6,6,7,8,9,9,10,11,12,13,14,15,16,17,18,19,21,22,23,24,25,27,28,29,31,32,33,35,36,38,39,40,42,43,45,46,48,49,51,53,54,56,57,59,60,62
 
 * = $4000 "scrollText"
+spritePalette:	.byte  1, 1, 1, 1, 1, 1, 1, 1
+				.byte  1, 1, 1, 1, 3, 3, 3,14
+				.byte 14,14, 6, 6, 6,11,11,11
+				.byte  0, 0, 0, 0, 0, 0, 0, 0
+				.byte  0, 0, 0, 0, 0, 0, 0, 0
+				.byte 11,11,11, 6, 6, 6,14,14
+				.byte 14, 3, 3, 3, 1, 1, 1, 1
+				.byte  1, 1, 1, 1, 1, 1, 1, 1
+
 scrollText:
 				.text "                                        welcome to a quick and dirty entry for psykoz 2017 from damones bla bla bla... expecting to get shitfaced today with the buddies from nepascene, the finnish association for c64 enthusiasts. sauna, beer, bla and bla will be included.                                         "
 scrollTextEnd:
+
+scrollPalette:	.byte 11, 6, 14, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 14, 6, 11
 
 * = $2800 "Logo"
 logo:
