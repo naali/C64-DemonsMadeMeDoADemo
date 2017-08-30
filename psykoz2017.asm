@@ -5,7 +5,7 @@
 //				Variables
 //----------------------------------------------------------
 .var			debug = true
-.var 			music = LoadSid("acid_jazz.sid")
+.var 			music = LoadSid("Nevernever201708230d.sid")
 .const 			irqpointer = $0314
 .const			scrollLine = 24
 
@@ -32,6 +32,9 @@ examplePart: {
 //----------------------------------------------------------
 .var 			rastertimeMarker = debug ? $d020 : $d024
 .label			partIrqStartLine = $14
+.label			spriteIrqStartLine = $50
+.label			scrollIrqStartLine = $80
+.label			musicIrqStartLine = $B0
 //----------------------------------------------------------
 partInit:
 // init music
@@ -100,90 +103,13 @@ partIrqStart: {
 				cpx #colorend-colors1
 				bne !-
 
-// Scroller
-				DebugRaster(1)
-
-				clc
-				lda #1 // scroll speed
-				adc scrollTextSmooth
-				tax
-				sta scrollTextSmooth
-				
-				bcc cc_smoothscroll
-
-				clc
-				ror
-				
-				clc
-				ror
-				
-				clc
-				ror
-
-				adc scrollPtrLO
-				sta scrollPtrLO
-				sta scrollTempLO
-				bcc cc_smoothscroll
-
-				lda #1
-				adc scrollPtrHI
-				sta scrollPtrHI
-				sta scrollTempHI
-
-cc_smoothscroll:
-
-				lda $d016
-				and #%11111000
-				sta $d016
-
-				lda $ff
-				sbc scrollTextSmooth
-				and #%00000111
-				ora $d016
-				sta $d016
-
-				ldx #0
-				ldy #0
-scroll:			
-				inc scrollTempLO
-				bcc perse
-
-				inc scrollTempHI
-				clc
-
-perse:
-				lda (scrollTempHI), y
-
-
-				sta $0400 + (40 * scrollLine), x
-
-				lda #1
-				adc $bc
-				sta $bc
-				bcc no_carry2
-
-				lda #1
-				adc $bb
-				sta $bb
-				clc
-no_carry2:
-				iny
-				inx
-				cpx #40
-				bne scroll
-
-
-// Sprites
-				DebugRaster(3)
-
-
 
 // Music
 				lda #0
 				sta $d020
 				sta $d021
 
-		:EndIRQ(SpriteIrqStart,$90,false)
+		:EndIRQ(SpriteIrqStart,spriteIrqStartLine,false)
 }
 
 SpriteIrqStart: {
@@ -230,7 +156,33 @@ no_overflow:
 				sta $d020
 				sta $d021
 
-		:EndIRQ(musicIrqStart,$a0,false)
+		:EndIRQ(scrollIrqStart,scrollIrqStartLine,false)
+
+}
+
+scrollIrqStart: {
+				DebugRaster(1)
+/*
+				clc
+				lda scrollPtrLO
+				sta scrollPtrLO
+				inc
+				bcc !+
+
+				lda scrollPtrHI
+				inc
+				sta scrollPtrHI
+!:
+				
+*/
+
+
+
+//				sta $0400 + (40 * scrollLine), x
+
+				DebugRaster(0)
+		:EndIRQ(musicIrqStart,musicIrqStartLine,false)
+
 
 }
 
