@@ -67,14 +67,12 @@ partInit:
 // init scroll
 				lda #0 // scroll pos
 				sta scrollTextSmooth
-				sta scrollPtrHI
-				sta scrollPtrLO
 
 				lda #<scrollText
-				sta scrollTextHI
+				sta scrollTextPtr
 
 				lda #>scrollText
-				sta scrollTextLO
+				sta scrollTextPtr + 1
 
 				ldx #0
 				lda #1
@@ -87,6 +85,12 @@ partInit:
 				rts
 //----------------------------------------------------------
 partIrqStart: {
+// reset smooth scroll...
+
+				lda $d016
+				and #%11111000
+				sta $d016
+
 			.for(var j=0; j<7; j++) {
 				nop
 			}				
@@ -103,8 +107,6 @@ partIrqStart: {
 				cpx #colorend-colors1
 				bne !-
 
-
-// Music
 				lda #0
 				sta $d020
 				sta $d021
@@ -162,23 +164,61 @@ no_overflow:
 
 scrollIrqStart: {
 				DebugRaster(1)
-/*
-				clc
-				lda scrollPtrLO
-				sta scrollPtrLO
-				inc
+
+				dec scrollTextSmooth
+				lda scrollTextSmooth
+				and #%00000111
+				tax
+
+				lda $d016
+				and #%11111000
+				sta $d016
+				
+				txa
+				ora $d016
+				sta $d016
+
+				txa
+				cmp #7
+				bne onlysmooth
+
+				lda scrollTextPtr
+				adc #0
+				sta scrollTextPtr
+
 				bcc !+
 
-				lda scrollPtrHI
-				inc
-				sta scrollPtrHI
+				lda scrollTextPtr + 1
+				adc #0
+				sta scrollTextPtr + 1
+
+				lda scrollTextPtr
+				cmp #<scrollText
+				bne !+
+
+				lda scrollTextPtr + 1
+				cmp #>scrollText
+				bne !+
+
+				lda #<scrollText
+				sta scrollTextPtr
+
+				lda #>scrollText
+				sta scrollTextPtr + 1
 !:
 				
-*/
+onlysmooth:
+				ldy #0
+				ldx #40
 
+!:
+				lda (scrollTextPtr), y
+				sta $0400 + (40 * scrollLine), y
 
+				iny
 
-//				sta $0400 + (40 * scrollLine), x
+				dex
+				bne !-
 
 				DebugRaster(0)
 		:EndIRQ(musicIrqStart,musicIrqStartLine,false)
@@ -189,11 +229,11 @@ scrollIrqStart: {
 musicIrqStart: {
 				DebugRaster(4)
 				jsr music.play 
-
+/*
 				lda $d016
 				and #%11111000
 				sta $d016
-
+*/
 				DebugRaster(0)
 
 		:EndIRQ(partIrqStart,partIrqStartLine,false)
@@ -214,7 +254,7 @@ sinTblY: 		.byte 64,65,67,68,70,71,73,74,76,78,79,81,82,84,85,87,88,89,91,92,94,
 
 * = $4000 "scrollText"
 scrollText:
-				.text "abcdefghijklmnopqrstuvxyz 01234567890asdasdasdjadsljkadslabcdefghijklmnopqrstuvxyz 01234567890asdasdasdjadsljkadslabcdefghijklmnopqrstuvxyz 01234567890asdasdasdjadsljkadslabcdefghijklmnopqrstuvxyz 01234567890asdasdasdjadsljkadsl kads ljk                                "
+				.text "                                        welcome to a quick and dirty entry for psykoz 2017 from damones bla bla bla... expecting to get shitfaced today with the buddies from nepascene, the finnish association for c64 enthusiasts. sauna, beer, bla and bla will be included.                                         "
 scrollTextEnd:
 
 * = $2800 "Logo"
@@ -227,18 +267,10 @@ logoEnd:
 	spriteXPtr: .byte 0
 	spriteYPtr: .byte 0
 	spriteXLocPtr: .byte 0
-
-	scrollTextSmooth: .byte 0
-
-	scrollTextHI: .byte 0
-	scrollTextLO: .byte 0
-
-	scrollPtrHI: .byte 0
-	scrollPtrLO: .byte 0
-
-	scrollTempHI: .byte 0
-	scrollTempLO: .byte 0
 }
+
+scrollTextSmooth: .byte 0
+scrollTextPtr: .byte 0,0
 
 
 //
@@ -311,7 +343,6 @@ loop:
 				lda #$04
 				sta $fe
 
-//				lda #$e8
 				lda #>colorTargetStart
 				sta $f9
 
