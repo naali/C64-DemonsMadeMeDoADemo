@@ -4,7 +4,7 @@
 //----------------------------------------------------------
 //				Variables
 //----------------------------------------------------------
-.var			debug = true
+.var			debug = false
 .var 			music = LoadSid("Nevernever201708230d.sid")
 .const 			irqpointer = $0314
 .const			scrollLine = 24
@@ -216,20 +216,6 @@ scrollIrqStart: {
 				lda scrollTextPtr + 1
 				adc #0
 				sta scrollTextPtr + 1
-
-				lda scrollTextPtr
-				cmp #<scrollText
-				bne !+
-
-				lda scrollTextPtr + 1
-				cmp #>scrollText
-				bne !+
-
-				lda #<scrollText
-				sta scrollTextPtr
-
-				lda #>scrollText
-				sta scrollTextPtr + 1
 !:
 				
 onlysmooth:
@@ -244,6 +230,17 @@ onlysmooth:
 
 				dex
 				bne !-
+
+				lda (scrollTextPtr), y
+				cmp #0
+				bne !+
+
+				lda #<scrollText
+				sta scrollTextPtr
+
+				lda #>scrollText
+				sta scrollTextPtr + 1
+!:
 
 				DebugRaster(0)
 		:EndIRQ(musicIrqStart,musicIrqStartLine,false)
@@ -288,18 +285,19 @@ spritePalette:	.byte  1, 1, 1, 1, 1, 1, 1, 1
 				.byte 14, 3, 3, 3, 1, 1, 1, 1
 				.byte  1, 1, 1, 1, 1, 1, 1, 1
 
-spriteHiLo: 	.byte  1, 1, 1, 1, 1, 1, 1, 1
-				.byte  1, 1, 1, 1, 1, 1, 1, 1
-				.byte  0, 0, 0, 0, 0, 0, 0, 0
-				.byte  0, 0, 0, 0, 0, 0, 0, 0
-				.byte  0, 0, 0, 0, 0, 0, 0, 0
+spriteHiLo: 	.byte  0, 0, 0, 0, 0, 0, 0, 0
 				.byte  0, 0, 0, 0, 0, 0, 0, 0
 				.byte  1, 1, 1, 1, 1, 1, 1, 1
 				.byte  1, 1, 1, 1, 1, 1, 1, 1
+				.byte  1, 1, 1, 1, 1, 1, 1, 1
+				.byte  1, 1, 1, 1, 1, 1, 1, 1
+				.byte  0, 0, 0, 0, 0, 0, 0, 0
+				.byte  0, 0, 0, 0, 0, 0, 0, 0
 
 scrollText:
-				.text "                                        welcome to a quick and dirty entry for psykoz 2017 from damones bla bla bla... expecting to get shitfaced today with the buddies from nepascene, the finnish association for c64 enthusiasts. sauna, beer, bla and bla will be included.                                         "
+				.text "                                        welcome to a quick and dirty entry for psykoz 2017 from damones bla bla bla jostaki tekstit taehaen...                                         "
 scrollTextEnd:
+				.byte 0
 
 scrollPalette:	.byte 11, 6, 14, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 14, 6, 11
 
