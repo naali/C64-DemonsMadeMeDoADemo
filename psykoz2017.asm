@@ -4,7 +4,7 @@
 //----------------------------------------------------------
 //				Variables
 //----------------------------------------------------------
-.var			debug = false
+.var			debug = true
 .var 			music = LoadSid("Nevernever201708230d.sid")
 .const 			irqpointer = $0314
 .const			scrollLine = 24
@@ -95,10 +95,17 @@ partInit:
 //----------------------------------------------------------
 partIrqStart: {
 // reset smooth scroll...
+				DebugRaster(1)
 
 				lda $d016
 				and #%11111000
 				sta $d016
+
+			.for (var i = 0; i < 7; i++) {
+				lda #$C0 + i
+				sta $07F8 + i
+			}
+
 /*
 			.for(var j=0; j<7; j++) {
 				nop
@@ -269,9 +276,38 @@ musicIrqStart: {
 scrollTopSprites: {
 				DebugRaster(7)
 
+				lda textSpritePtr
+				adc #1
+				sta textSpritePtr				
+				clc
+				ror
+
+				clc
+				ror
+
+				clc
+				ror
+
+				clc
+				ror
+
+				clc
+				ror
+
+				clc
+
+				rol
+				rol
+				rol
+				tax
+
 			.for (var i = 0; i < 8; i++) {
-				lda #$C0 + i
+				clc
+				lda textSpriteArr, x
+				adc #$C0
+				clc
 				sta $07F8 + i
+				inx
 			}
 
 			.for (var i = 0; i < 8; i++) {
@@ -284,25 +320,6 @@ scrollTopSprites: {
 
 				lda #%11100000
 				sta $d010
-
-/*
-			.for(var j=0; j<7; j++) {
-				nop
-			}				
-				ldx #$00
-!:
-				lda colors1,x
-				sta $d020
-				sta $d021
-
-			.for(var j=0; j<22; j++) {
-				nop
-			}				
-				inx
-				cpx #colorend-colors1
-				bne !-
-*/
-
 
 				DebugRaster(0)
 
@@ -343,6 +360,33 @@ spriteHiLo:
 				.byte  0, 0, 0, 0, 0, 0, 0, 0
 				.byte  0, 0, 0, 0, 0, 0, 0, 0
 
+textSpriteArr:
+				.byte 0,1,2,3,4,5,6,7
+				.byte 0,1,2,3,4,5,6,7
+				.byte 0,1,2,3,4,5,6,7
+				.byte 0,1,2,3,4,5,6,7
+				.byte 0,1,2,3,4,5,6,7
+				.byte 0,1,2,3,4,5,6,7
+				.byte 0,1,2,3,4,5,6,7
+				.byte 0,1,2,3,4,5,6,7
+
+				.byte 7,0,5,2,3,4,6,7
+				.byte 7,7,2,1,0,5,7,7
+				.byte 7,7,7,2,5,7,7,7
+				.byte 7,7,7,0,3,7,7,7
+				.byte 7,1,7,0,5,2,3,7
+				.byte 7,7,7,7,7,7,7,7
+				.byte 7,7,7,7,7,7,7,7
+				.byte 7,7,7,7,7,7,7,7
+
+spriteKerningPre: 
+				.byte 5, 5, 5, 5, 5, 5, 5, 5
+				.byte 0, 0, 0, 0, 0, 0, 0, 0
+priteKerningPost: 
+				.byte 5, 5, 5, 5, 5, 5, 5, 5
+				.byte 0, 0, 0, 0, 0, 0, 0, 0
+
+
 scrollText:
 				.text "                                        welcome to a quick and dirty entry for psykoz 2017 from damones bla bla bla jostaki tekstit taehaen...                                         "
 scrollTextEnd:
@@ -364,6 +408,7 @@ logoEnd:
 	spriteYPtr: .byte 0
 	spriteXLocPtr: .byte 0
 	spriteHiLoTmp: .byte 0
+	textSpritePtr: .byte 0
 }
 
 scrollTextSmooth: .byte 0
