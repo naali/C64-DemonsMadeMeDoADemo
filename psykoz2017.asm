@@ -4,6 +4,15 @@
 //----------------------------------------------------------
 //				Variables
 //----------------------------------------------------------
+.const			D = 0
+.const 			A = 1
+.const 			M = 2
+.const 			O = 3
+.const 			N = 4
+.const 			EE = 5
+.const 			S = 6
+.const			Sp = 7
+
 .var			debug = true
 .var 			music = LoadSid("Nevernever201708230d.sid")
 .const 			irqpointer = $0314
@@ -32,10 +41,10 @@ examplePart: {
 //----------------------------------------------------------
 .var 			rastertimeMarker = debug ? $d020 : $d024
 .label			partIrqStartLine = $14
-.label			spriteIrqStartLine = $20
+.label			spriteIrqStartLine = $20 - 4
 .label			scrollIrqStartLine = $96
 .label			musicIrqStartLine = $A9
-.label			scrollTopSpritesStartLine = $bd
+.label			scrollTopSpritesStartLine = $bf
 .label			openBordersLine = $fa
 //----------------------------------------------------------
 partInit:
@@ -99,7 +108,7 @@ partIrqStart: {
 				and #%11111000
 				sta $d016
 
-			.for (var i = 0; i < 7; i++) {
+			.for (var i = 0; i < 8; i++) {
 				lda #$C0 + i
 				sta $07F8 + i
 			}
@@ -246,10 +255,6 @@ onlysmooth:
 musicIrqStart: {
 				DebugRaster(4)
 				jsr music.play 
-/*
-				lda #0
-				sta $d015
-*/
 				DebugRaster(0)
 
 		:EndIRQ(scrollTopSprites,scrollTopSpritesStartLine,false)
@@ -257,8 +262,11 @@ musicIrqStart: {
 
 
 openBorders: {
-	lda #0
-	sta $d011
+				lda #0
+				sta $d015
+
+				lda #0
+				sta $d011
 	:EndIRQ(partIrqStart,partIrqStartLine,false)
 
 }
@@ -302,14 +310,48 @@ spriteHiLo:
 				.byte  0, 0, 0, 0, 0, 0, 0, 0
 
 textSpriteArr:
-				.byte 0,5,2,3,4,6,7,7
-				.byte 7,2,1,0,5,7,7,7
-				.byte 7,7,2,5,7,7,7,7
-				.byte 7,7,0,3,7,7,7,7
-				.byte 1,7,0,5,2,3,7,7
+				.byte 7,7,7,7,7,7,7,7
+				.byte Sp,S,A,N,D,Sp,Sp,Sp
+				.byte Sp,M,EE,S,A,Sp,Sp,Sp
+				.byte Sp,M,A,D,EE,Sp,Sp,Sp
+
+				.byte Sp,A,Sp,D,A,M,Sp,Sp
+				.byte 7,7,7,7,7,7,7,7
+				.byte 7,7,7,7,7,7,7,7
+				.byte Sp,Sp,S,O,N,EE,Sp,Sp
+
+				.byte Sp,Sp,M,O,D,EE,Sp,Sp
+				.byte Sp,Sp,N,O,D,Sp,Sp,Sp
+				.byte Sp,Sp,M,EE,N,Sp,Sp,Sp
+				.byte 7,7,7,7,7,7,7,7
+
+				.byte 7,7,7,7,7,7,7,7
+				.byte S,EE,M,EE,N,Sp,Sp,Sp
+				.byte Sp,M,EE,A,D,Sp,Sp,Sp
+				.byte A,M,EE,N,D,S,Sp,Sp
+
+				.byte D,A,M,EE,S,Sp,Sp,Sp
+				.byte 7,7,7,7,7,7,7,7
+				.byte 7,7,7,7,7,7,7,7
+				.byte N,O,M,A,D,S,Sp,Sp,Sp
+
+				.byte Sp,M,O,A,N,Sp,Sp,Sp
+				.byte Sp,A,M,EE,N,Sp,Sp,Sp
+				.byte 7,7,7,7,7,7,7,7
+				.byte 7,7,7,7,7,7,7,7
+
+				.byte D,EE,M,O,N,S,Sp,Sp
+				.byte Sp,M,A,D,EE,Sp,Sp,Sp
+				.byte Sp,Sp,M,EE,Sp,Sp,Sp,Sp
+				.byte Sp,Sp,D,O,Sp,Sp,Sp,Sp
+
+				.byte A,Sp,D,EE,M,O,Sp,Sp
 				.byte 7,7,7,7,7,7,7,7
 				.byte 7,7,7,7,7,7,7,7
 				.byte 7,7,7,7,7,7,7,7
+
+
+
 
 spriteKerning:	
 				.byte 4, 2, 4, 2, -4, 10, 4, 4
@@ -339,14 +381,22 @@ scrollTopSprites: {
 				sta textSpriteXPtr
 
 				clc
-				lda textSpritePtr
+				lda textSpriteSlow
 				adc #1
-				sta textSpritePtr				
 				clc
-				ror
+				sta textSpriteSlow
+				cmp #15
+				bne !+
+				lda #0
+				sta textSpriteSlow
 
 				clc
-				ror
+				lda textSpritePtr
+				adc #1
+				sta textSpritePtr
+
+!:				
+				lda textSpritePtr
 
 				clc
 				ror
@@ -374,7 +424,7 @@ scrollTopSprites: {
 				sta textSpritestartPos + 1
 
 			.for (var i = 0; i < 8; i++) {
-				lda #210
+				lda #218
 				sta $D001 + i * 2
 
 				clc
@@ -395,8 +445,7 @@ scrollTopSprites: {
 				adc textSpriteXPtr
 				tax
 				ldx textSpriteXPtr
-				lda #38
-				clc
+				lda #36
 				adc sinTblTextX + i * 17, x
 				clc
 				sta textSpriteXJemma
@@ -435,28 +484,14 @@ scrollTopSprites: {
 				clc
 !:
 
+				lda spritePalette,y
+				sta $d027 + i
 
 				inx
 			}
 
-			.for (var i=0; i < 8; i++) {
-				lda #1
-				sta $d027 + i
-			}
-
 			lda textSpriteHiXPos
 			sta $d010
-
-			.for (var i=0; i<10; i++) {
-				lda #1
-				sta $d020
-				sta $d021
-
-				lda #2
-				sta $d020
-				sta $d021
-			}
-
 
 /*
 				lda #%00000000
@@ -479,6 +514,12 @@ scrollTopSprites: {
 	textSpritestartPos: .word 0
 	textSpriteXPtr: .byte 0
 	textSpriteXJemma: .byte 0
+	.byte 0
+	.byte 0
+	.byte 0
+	.byte 0
+
+	textSpriteSlow: .byte 0
 }
 
 scrollTextSmooth: .byte 0
