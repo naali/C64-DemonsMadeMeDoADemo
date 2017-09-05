@@ -1,4 +1,4 @@
-.filenamespace psykoz2017
+.filenamespace DemonsMadeMeDoADemo_DMS
 :BasicUpstart2(mainStartup)
 
 //----------------------------------------------------------
@@ -13,7 +13,7 @@
 .const 			S = 6
 .const			Sp = 7
 
-.var			debug = true
+.var			debug = false
 .var 			music = LoadSid("Nevernever201708230d.sid")
 .const 			irqpointer = $0314
 .const			scrollLine = 24
@@ -39,9 +39,8 @@ mainStartup:
 examplePart: {
 .pc = $0b00 "ExamplePart"
 //----------------------------------------------------------
-.var 			rastertimeMarker = debug ? $d020 : $d024
 .label			partIrqStartLine = $14
-.label			spriteIrqStartLine = $20 - 4
+.label			spriteIrqStartLine = $1b
 .label			scrollIrqStartLine = $96
 .label			musicIrqStartLine = $A9
 .label			scrollTopSpritesStartLine = $bf
@@ -276,12 +275,7 @@ partJump:
 				jmp *
 }
 
-colors1:
-//				.text "fncmagolk@fncmagolk@fncmagolk@fncmagolk@"
-colorend:
-
-
-
+ 
 * = $4000 "scrollText"
 sinTblX: 		.byte 100,102,104,107,109,112,114,117,119,121,124,126,129,131,133,135,138,140,142,144,147,149,151,153,155,157,159,161,163,165,167,168,170,172,174,175,177,178,180,181,183,184,185,187,188,189,190,191,192,193,194,194,195,196,197,197,198,198,198,199,199,199,199,199,200,199,199,199,199,199,198,198,198,197,197,196,195,194,194,193,192,191,190,189,188,187,185,184,183,181,180,178,177,175,174,172,170,168,167,165,163,161,159,157,155,153,151,149,147,144,142,140,138,135,133,131,129,126,124,121,119,117,114,112,109,107,104,102,100,97,95,92,90,87,85,82,80,78,75,73,70,68,66,64,61,59,57,55,52,50,48,46,44,42,40,38,36,34,32,31,29,27,25,24,22,21,19,18,16,15,14,12,11,10,9,8,7,6,5,5,4,3,2,2,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,2,2,3,4,5,5,6,7,8,9,10,11,12,14,15,16,18,19,21,22,24,25,27,29,31,32,34,36,38,40,42,44,46,48,50,52,55,57,59,61,64,66,68,70,73,75,78,80,82,85,87,90,92,95,97
 sinTblY: 		.byte 64,65,67,68,70,71,73,74,76,78,79,81,82,84,85,87,88,89,91,92,94,95,96,98,99,100,102,103,104,105,106,108,109,110,111,112,113,114,115,116,117,118,118,119,120,121,121,122,123,123,124,124,125,125,126,126,126,127,127,127,127,127,127,127,128,127,127,127,127,127,127,127,126,126,126,125,125,124,124,123,123,122,121,121,120,119,118,118,117,116,115,114,113,112,111,110,109,108,106,105,104,103,102,100,99,98,96,95,94,92,91,89,88,87,85,84,82,81,79,78,76,74,73,71,70,68,67,65,64,62,60,59,57,56,54,53,51,49,48,46,45,43,42,40,39,38,36,35,33,32,31,29,28,27,25,24,23,22,21,19,18,17,16,15,14,13,12,11,10,9,9,8,7,6,6,5,4,4,3,3,2,2,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,2,2,3,3,4,4,5,6,6,7,8,9,9,10,11,12,13,14,15,16,17,18,19,21,22,23,24,25,27,28,29,31,32,33,35,36,38,39,40,42,43,45,46,48,49,51,53,54,56,57,59,60,62
@@ -311,47 +305,51 @@ spriteHiLo:
 
 textSpriteArr:
 				.byte 7,7,7,7,7,7,7,7
-				.byte Sp,S,A,N,D,Sp,Sp,Sp
-				.byte Sp,M,EE,S,A,Sp,Sp,Sp
-				.byte Sp,M,A,D,EE,Sp,Sp,Sp
+				.byte 7,7,7,7,7,7,7,7
+				.byte D,A,M,O,N,EE,S,Sp
+				.byte D,EE,EE,M,EE,D,Sp,Sp
 
-				.byte Sp,A,Sp,D,A,M,Sp,Sp
+				.byte Sp,D,O,D,O,S,Sp,Sp
 				.byte 7,7,7,7,7,7,7,7
-				.byte 7,7,7,7,7,7,7,7
-				.byte Sp,Sp,S,O,N,EE,Sp,Sp
+				.byte Sp,D,O,O,M,EE,D,Sp
+				.byte Sp,M,EE,A,N,Sp,Sp,Sp
 
-				.byte Sp,Sp,M,O,D,EE,Sp,Sp
-				.byte Sp,Sp,N,O,D,Sp,Sp,Sp
-				.byte Sp,Sp,M,EE,N,Sp,Sp,Sp
+				.byte Sp,EE,N,EE,M,A,Sp,Sp
+				.byte Sp,M,EE,M,EE,Sp,Sp,Sp
+				.byte 7,7,7,7,7,7,7,7
+				.byte Sp,S,EE,M,EE,N,Sp,Sp
+
+				.byte Sp,Sp,M,EE,A,D,Sp,Sp
+				.byte Sp,A,M,EE,N,D,S,Sp
+				.byte Sp,D,A,M,EE,S,Sp,Sp
 				.byte 7,7,7,7,7,7,7,7
 
-				.byte 7,7,7,7,7,7,7,7
-				.byte S,EE,M,EE,N,Sp,Sp,Sp
-				.byte Sp,M,EE,A,D,Sp,Sp,Sp
-				.byte A,M,EE,N,D,S,Sp,Sp
+				.byte Sp,Sp,D,EE,EE,D,Sp,Sp
+				.byte Sp,Sp,D,O,N,EE,Sp,Sp
+				.byte Sp,Sp,Sp,EE,O,N,Sp,Sp
+				.byte Sp,Sp,EE,N,D,S,Sp,Sp
 
-				.byte D,A,M,EE,S,Sp,Sp,Sp
 				.byte 7,7,7,7,7,7,7,7
-				.byte 7,7,7,7,7,7,7,7
-				.byte N,O,M,A,D,S,Sp,Sp,Sp
-
+				.byte Sp,N,O,M,A,D,S,Sp,Sp
 				.byte Sp,M,O,A,N,Sp,Sp,Sp
 				.byte Sp,A,M,EE,N,Sp,Sp,Sp
-				.byte 7,7,7,7,7,7,7,7
-				.byte 7,7,7,7,7,7,7,7
 
+				.byte 7,7,7,7,7,7,7,7
 				.byte D,EE,M,O,N,S,Sp,Sp
 				.byte Sp,M,A,D,EE,Sp,Sp,Sp
 				.byte Sp,Sp,M,EE,Sp,Sp,Sp,Sp
-				.byte Sp,Sp,D,O,Sp,Sp,Sp,Sp
 
+				.byte Sp,Sp,D,O,Sp,Sp,Sp,Sp
 				.byte A,Sp,D,EE,M,O,Sp,Sp
 				.byte 7,7,7,7,7,7,7,7
 				.byte 7,7,7,7,7,7,7,7
-				.byte 7,7,7,7,7,7,7,7
 
 
-
+spriteTextPalette:
+				.byte  0,11, 6,14, 3, 1, 1, 1
+				.byte  1, 1, 1, 3,14, 6, 11,0
+				.byte  0,11, 6,14, 3, 1, 1, 1
+				.byte  1, 1, 1, 3,14, 6, 11,0
 
 spriteKerning:	
 				.byte 4, 2, 4, 2, -4, 10, 4, 4
@@ -412,19 +410,22 @@ scrollTopSprites: {
 				rol
 				rol
 				rol
-				tax
+				pha
 
 				lda #0
 				sta textSpriteHiXPos
-
-
 				sta textSpritestartPos
-
-				lda #0
 				sta textSpritestartPos + 1
 
+				clc
+				lda textSpriteSlow
+				sta textSpriteColor
+
+				pla
+				tax
+
 			.for (var i = 0; i < 8; i++) {
-				lda #218
+				lda #214
 				sta $D001 + i * 2
 
 				clc
@@ -462,12 +463,11 @@ scrollTopSprites: {
 
 				bcc !+
 				lda textSpritestartPos
-				adc #1
+				adc #0
 				sta textSpritestartPos
-				clc
 
-				lda #1 <<  i
-				ora textSpriteHiXPos
+				lda textSpriteHiXPos
+				ora #1 <<  i
 				sta textSpriteHiXPos
 
 !:
@@ -484,8 +484,15 @@ scrollTopSprites: {
 				clc
 !:
 
-				lda spritePalette,y
+				txa
+				pha
+
+				ldx textSpriteColor
+				lda spriteTextPalette + i, x
 				sta $d027 + i
+
+				pla
+				tax
 
 				inx
 			}
@@ -520,6 +527,8 @@ scrollTopSprites: {
 	.byte 0
 
 	textSpriteSlow: .byte 0
+	textSpriteColorCounter: .word 0
+	textSpriteColor: .byte 0
 }
 
 scrollTextSmooth: .byte 0
